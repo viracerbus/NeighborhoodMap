@@ -14,7 +14,7 @@
 
 	<body>
 		 <div class="container">
-			<nav class="navbar-default navbar-fixed-top">
+			<nav class="nav">
 
 
 				<div class="page-header">
@@ -22,20 +22,20 @@
 					<h4>A handful of theaters that one can visit around the Twin Cities area in MN</h4>
 				</div>
 				<div>
-					<div class="navbar-left col-lg-2">
-						<form class="navbar-form">
-							<div class="form-group">
-								<input type="text" placeholder="Search" data-bind="textInput: searchInput">
-							</div>
-						</form>
-					</div>
 					<div class="row">
-						<div class="col-lg-4">
+						<div class="col-lg-4, search">
+							<div class="navbar-left">
+								<form class="navbar-form">
+									<div class="form-group">
+										<input type="text" placeholder="Search" data-bind="textInput: searchInput">
+									</div>
+								</form>
+							</div>
 							<h4>Search or Choose a theater group:</h4>
 						</div>
 
-						<div class="col-lg-10">
-							<ul data-bind="foreach: mapTheaters, foreach: inSearch">
+						<div class="col-lg-8, buttons">
+							<ul class="btns" data-bind="foreach: mapTheaters, foreach: inSearch">
 								<li class="li-btn" data-bind="text: name, click: function () {$parent.clickTheaterTitle($data)}"></li>
 							</ul>
 						</div>

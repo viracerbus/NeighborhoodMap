@@ -1,79 +1,59 @@
 	// List of theaters used in the app
 
+var map, geocode, mapBounds, infoWindow;
+
 var theaters = [
 {
-	name: "Morris Park Players",
-	location: "Edison High School, ",
-	type: "Community",
-	description: "Located in the cities, this group frequently puts on productions with a large number of roles for kids and adults, emphasizing community above all. It first opened in 1952 and has performed over 100 musicals over it's 60+ years. For more information, visit http://www.morrisparkplayers.org/",
-	lat: 45.0094185,
-	lon: -93.2538724,
-	mark: null
+	name: "Children's Theatre Company",
+	location: "Minneapolis Institure of Arts",
+	address: "2400 3rd Ave S, Minneapolis, MN 55404",
+	description: "",
+	mark: null,
+	website: "http://childrenstheatre.org/"
 },
 {
-	name: "Lyric Arts",
-	location: "Lyric Arts Main Street Stage, Anoka",
-	type: "Community",
-	description: "Located in Anoka, Lyric Arts sports some of the best talent available to community theaters, and consistently puts on stellar performances in a sold out house where no seat is a bad seat. Founded as recently as 1995, this little theater always puts on must-see performances. For more information, visit http://www.lyricarts.org/",
-	lat: 45.1975685,
-	lon: -93.3865027,
-	mark: null
+	name: "Guthrie Theater",
+	location: "Guthrie Theater",
+	address: "818 S 2nd St, Minneapolis, MN 55415",
+	description: "",
+ 	mark: null,
+ 	website: "http://www.guthrietheater.org/"
 },
 {
-	name: "Chanhassen Dinner Theaters",
-	location: "Chanhassen Dinner Theaters, Chanhassen",
-	type: "Semi-Professional",
-	description: "A innovative way to enjoy theater, feel free to order a meal before the show begins and enjoy it during the long intermission. Chanhassen Dinner Theater brings together great performing art with great food, leaving patrons eager for their next trip to see another marvelous show. For more information, visit http://www.chanhassendt.calls.net/",
-	lat: 44.8609628,
-	lon: -93.5344077,
-	mark: null
+	name: "HUGE Improv Theater",
+	location: "HUGE Theater",
+	address: "3037 Lyndale Ave S, Minneapolis, MN 55408",
+	description: "",
+	mark: null,
+	website: "http://www.hugetheater.com"
 },
 {
-	name: "Chaska Valley Family Theater",
-	location: "Chaska High School, Chaska",
-	type: "Community",
-	description: "Chaska Valley Family Theater is a theater that boasts a community so strong and friendly you feel like family the moment you meet them. Founded by a group of former Chaska High School students, CVFT has stood the test of time and continues putting on exceptional community shows. For more information, visit http://www.cvft.org/",
-	lat: 44.8243878,
-	lon: -93.5914921,
-	mark: null
+	name: "Mixed Blood Theatre Company",
+	location: "Mixed Blood Theatre",
+	address: "1501 S 4th St, Minneapolis, MN 55454",
+	description: "",
+	mark: null,
+	website: "http://www.mixedblood.com/"
 },
 {
-	name: "Orpheum",
-	location: "Orpheum Theatre, Minneapolis",
-	type: "Professional",
-	description: "Though the price tag may seem a bit intimidating at first, you are guaranteed to not be disappointed. The Orpheum has a long standing reputation of providing some of the very best performances to ever hit the Twin Cities of Minnesota. Each show will leave you breathless and in awe at the marvelous talent you witness. For more information, visit http://theatreminneapolis.com/",
-	lat: 44.9763528,
-	lon: -93.2796657,
-	mark: null
+	name: "Orpheum Theatre (Minneapolis)",
+	location: "Orpheum Theatre",
+	address: "910 Hennepin Ave, Minneapolis, MN 55402",
+	description: "",
+	mark: null,
+	website: "http://orpheum.theatreminneapolis.com/"
 }];
 
 	//Starting coordinates and zoom for our app
 
 var defaultCoordinates = {
 	lat: 45.0187021,
-	lon: -93.5053253,
-	zoom: 11
-}
+	lon: -93.5053253
+};
 
-var Error = function() {
-	alert("Unable to connect to Google Maps. Refresh page or check back at a later time.");
-}
 
-var RunWebpage = function() {
-var ViewModel = function() {
-	self = this;
 
-	// Constructor for theaters in the View Model
-
-	var theater = function (data) {
-		this.name = data.name;
-		this.location = data.location;
-		this.type = data.type;
-		this.description = data.description;
-		this.lat = data.lat;
-		this.lon = data.lon;
-		this.mark = data.mark;
-	};
+var runWebpage = function() {
 
 	// Creates the Google Map in the back
 
@@ -84,119 +64,149 @@ var ViewModel = function() {
 			mapTypeId: google.maps.MapTypeId.TERRAIN,
 			disableDefaultUI: true
 		});
+		geocoder = new google.maps.Geocoder();
+		mapBounds = new google.maps.LatLngBounds();
+		infoWindow = new google.maps.InfoWindow();
 	};
-	initializeMap();
 
-	this.searchInput = ko.observable('');
-	
-	// Keeps track of any open Info Window to avoid having more than 1 up at a time
+	var ViewModel = function() {
+		self = this;
 
-	var openInfo = null;
+		// Constructor for theaters in the View Model
 
-	// Return map to it's starting position, closing any info pop-ups
+		var theater = function (data) {
+			this.name = data.name;
+			this.location = data.location;
+			this.address = data.address;
+			this.website = data.website;
+			this.description = data.description;
+			this.mark = data.mark;
+		};
 
-	var centerMap = function() {
-		if (openInfo !== null) {openInfo.close(map, this)};
-		map.setCenter({lat: defaultCoordinates.lat, lng: defaultCoordinates.lon});
-		map.setZoom(defaultCoordinates.zoom);	
-		openInfo = null;
-	}
+		// Adds all the theaters into an observable array (not in use at the moment...)
 
-	// Creates markers on the map for each theater and gives them the id of "marker"
-
-	theaters.forEach(function (theater) {
-		marker = new google.maps.Marker({
-			map: map,
-			position: {lat: theater.lat, lng: theater.lon},
-			animation: google.maps.Animation.DROP,
-			name: theater.name,
-			id: "marker",
-			clickable: true
-		});
-
-	// Fills out the Info Window with information pertaining to the location
-
-		infoWindow = new google.maps.InfoWindow({
-			position: {lat: theater.lat, lng: theater.lon},
-			content: "<p><b>" + theater.name + "</b> performing at <b>" + theater.location + "</b></p>" + theater.description
-		});
-
-	// Adds functionality to clicking on markers, Zooming into newly clicked areas and leaving behind previously visited ones
-
-		marker.addListener("click", function () {
-			if (openInfo === infoWindow) {
-				centerMap();
-				self.searchInput('');
-			} else {
-				if (openInfo !== null) {
-					centerMap();
-					self.searchInput('');
-				} 
-				map.panTo(marker.position);
-				map.setZoom(15);
-				infoWindow.open(map, marker);
-				openInfo = infoWindow;
-				marker.setAnimation(google.maps.Animation.BOUNCE);
-				setTimeout(function() {marker.setAnimation(null)}, 1450);
-				self.currentTheater(theater);
+		this.mapTheaters = ko.observableArray([]);
+		theaters.forEach(function(newTheater) {
+			self.mapTheaters.push(new theater(newTheater));
 			}
-		});
+		);
 
-		google.maps.event.addListener(infoWindow, 'closeclick', function() {
-			centerMap();
-		});
-
-
-		theater.mark = marker;
-	});
-
-	// Keep track of currently selected theater
-
-	this.currentTheater = ko.observable(null);
-
-	// Adds all the theaters into an observable array (not in use at the moment...)
-
-	this.mapTheaters = ko.observableArray([]);
-	theaters.forEach(function(newTheater) {
-		self.mapTheaters.push(new theater(newTheater));
-		}
-	);
-
-
-	// Navigates you to the marker for the button you click
-
-	this.clickTheaterTitle = function (theater) {
-		map.panTo(marker.position);
-		map.setZoom(15);
-		infoWindow.open(map, marker);
-		openInfo = infoWindow;
-		marker.setAnimation(google.maps.Animation.BOUNCE);
-		setTimeout(function() {marker.setAnimation(null)}, 1450);
-		self.currentTheater(theater);
-	}
-
-
-	// Filters as you type into the search bar both buttons and the markers
-
-	this.inSearch = ko.computed(function() {
-		var visible = ko.utils.arrayFilter(theaters, function (theater) {
-			if (theater.name.toLowerCase().includes(self.searchInput().toLowerCase())) {
-				theater.mark.setVisible(true);
-				return true;
-			} else {
-				theater.mark.setVisible(false);
-				centerMap();
-				return false;
-			}
-		});
-
-		return visible;
+		this.searchInput = ko.observable('');
 		
-	});
+		// Keeps track of any open Info Window to avoid having more than 1 up at a time
+
+		var openInfo = null;
+
+		// Return map to it's starting position, closing any info pop-ups
+
+		var centerMap = function() {
+			map.fitBounds(mapBounds);
+			openInfo = null;
+		};
+
+		// Creates markers on the map for each theater and gives them the id of "marker"
+
+		this.mapTheaters().forEach(function (theater) {
+			geocoder.geocode({'address': theater.address}, function (results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {	 
+					var marker = new google.maps.Marker({
+						map: map,
+						position: results[0].geometry.location,
+						animation: google.maps.Animation.DROP,
+						name: theater.name,
+						id: "marker",
+						clickable: true
+					});
+				
+
+			// Fills out the Info Window with information pertaining to the location
+
+			// Adds functionality to clicking on markers, Zooming into newly clicked areas and leaving behind previously visited ones
+					marker.addListener("click", function () {
+						map.panTo(marker.position);
+						fillInfo(theater);
+						infoWindow.open(map, marker);
+						openInfo = infoWindow;
+						marker.setAnimation(google.maps.Animation.BOUNCE);
+						setTimeout(function() {marker.setAnimation(null);}, 1400);
+						self.currentTheater(theater);
+					});
+
+					google.maps.event.addListener(infoWindow, 'closeclick', function() {
+						centerMap();
+					});
+
+					theater.mark = marker;
+					mapBounds.extend(results[0].geometry.location);
+
+				} else {
+					alert('Geocode failed due to: ' + status);
+				}
+				map.fitBounds(mapBounds);
+			});
+		});
+
+		// Keep track of currently selected theater
+
+		this.currentTheater = ko.observable(null);
+
+		// Navigates you to the marker for the button you click
+
+		this.clickTheaterTitle = function (theater) {
+			google.maps.event.trigger(theater.mark, 'click');
+		};
 
 
-};
+		// Filters as you type into the search bar both buttons and the markers
+
+		this.inSearch = ko.computed(function() {
+			var visible = ko.utils.arrayFilter(self.mapTheaters(), function (theater) {
+				var input = self.searchInput().toLowerCase();
+				// Prevents errors by hiding any theaters lacking a mark, initially showing buttons for each mark
+				if (theater.mark === null) {
+					return true;
+				}
+				if (theater.name.toLowerCase().includes(input)) {
+					theater.mark.setVisible(true);
+					return true;
+				} else {
+					theater.mark.setVisible(false);
+					infoWindow.close();
+					centerMap();
+					return false;
+				}
+			});
+			return visible;
 			
-$(document).ready(function(){
+		});
+
+
+	};
+	
+	// Populates the Info Window
+
+	var fillInfo = function (theater) {
+		var wikipediaUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&limit=1&search=" + theater.name + "&format=json&callback=wikiCallback";
+		var wikiRequestTimeout = setTimeout(function() {
+			alert("Wikipedia is taking too long to load. Refresh to try again later."); 
+		}, 5000);
+		$.ajax({
+			url: wikipediaUrl,
+			dataType: "jsonp",
+			success: function(response) {
+				theater.description = response[2];
+				var url = "http://en.wikipedia.org/wiki/" + response[1];
+				infoWindow.setContent(
+					"<div class='infoWin'><h4>Theater: </h4><b>" + theater.name + "</b> at the <b>" + theater.location + "</b><br><br>" +
+					  theater.description + "<br><br><b>Links:</b><br>" +
+					  "<li><a href='" + url + "'>" + response[1] + " (Wikipedia)</a></li><li><a href='" + 
+					  theater.website + "'>" + theater.name + " (Visit the website!)</a></li>" + "</div>"
+					);
+				clearTimeout(wikiRequestTimeout);
+			}
+		});
+	};
+
+	initializeMap();
 	ko.applyBindings(new ViewModel());
-});};
+};

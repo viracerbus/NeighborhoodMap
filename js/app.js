@@ -1,6 +1,6 @@
 	// List of theaters used in the app
 
-var map, geocode, mapBounds, infoWindow;
+var map, geocoder, mapBounds, infoWindow;
 
 var theaters = [
 {
@@ -51,7 +51,9 @@ var defaultCoordinates = {
 	lon: -93.5053253
 };
 
-
+var failNotice = function() {
+	alert ("Failed to retrieve map from Google. Please refresh or try again later.");
+}
 
 var runWebpage = function() {
 
@@ -197,7 +199,7 @@ var runWebpage = function() {
 				theater.description = response[2];
 				var url = "http://en.wikipedia.org/wiki/" + response[1];
 				infoWindow.setContent(
-					"<div class='infoWin'><h4>Theater: </h4><b>" + theater.name + "</b> at the <b>" + theater.location + "</b><br><br>" +
+					"<div class='info-win'><h4>Theater: </h4><b>" + theater.name + "</b> at the <b>" + theater.location + "</b><br><br>" +
 					  theater.description + "<br><br><b>Links:</b><br>" +
 					  "<li><a href='" + url + "'>" + response[1] + " (Wikipedia)</a></li><li><a href='" + 
 					  theater.website + "'>" + theater.name + " (Visit the website!)</a></li>" + "</div>"
@@ -210,3 +212,4 @@ var runWebpage = function() {
 	initializeMap();
 	ko.applyBindings(new ViewModel());
 };
+

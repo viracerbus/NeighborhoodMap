@@ -8,11 +8,11 @@
 }
 
 .page-header {
-  margin: 0px;
+  margin: 0;
   text-align: center;
 }
 
-.infoWin {
+.info-win {
   text-align: center;
 }
 
@@ -36,8 +36,8 @@
   float: left;
   list-style: none;
   text-align: center;
-  background-color: #FFFFFF;
-  border: 1px solid #000000;
+  background-color: #fff;
+  border: 1px solid #000;
   margin-right: 10px;
   width: 90px;
   font-size: 14px;
@@ -59,7 +59,7 @@
   }
   
   .buttons {
-    margin-left: 0px;
+    margin-left: 0;
   }
 
   .li-btn {
@@ -76,7 +76,7 @@
 
 @media screen and (min-width: 400px) and (max-width: 800px) {
 
-  .infoWin {
+  .info-win {
     font-size: 12px;
   }
 
@@ -91,7 +91,7 @@
   }
   
   .buttons {
-    margin-left: 0px;
+    margin-left: 0;
   }
 
   .li-btn {
@@ -113,7 +113,7 @@
 
 @media screen and (max-width: 400px) {
 
-  .infoWin {
+  .info-win {
     font-size: 12px;
   }
 
@@ -128,7 +128,7 @@
   }
 
   .buttons {
-    margin-left: 0px;
+    margin-left: 0;
   }
 
   .li-btn {
